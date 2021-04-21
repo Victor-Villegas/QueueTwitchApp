@@ -1,17 +1,145 @@
-<div class="uk-flex uk-flex-center uk-flex-middle uk-height-1-1 uk-text-center uk-flex-column">
-  <h1 class="">Holi ψ(._. )> esta es tu lista de funación:</h1>
+<div class="uk-flex uk-flex-row uk-height-1-1" id="big">
+  <div class="uk-flex uk-flex-center uk-flex-middle uk-text-center uk-flex-column uk-width-1-6 uk-visible@xl" id="sem">
+    <div class="uk-flex uk-flex-middle uk-height-1-1 uk-text-center uk-flex-column" id="kirzheka-sem">
+      <h1 class="">Funados esta semana</h1>
 
-  <div class="uk-flex uk-margin-small-bottom" id="table-title">
-    <div class="uk-width-1-5">TIPO</div>
-    <div class="uk-width-3-5">NOMBRE DE USUARIO</div>
-    <div class="uk-width-1-5">-</div>
+      <div class="uk-flex uk-margin-small-bottom" id="left-table">
+        <div class="uk-width-1-1">NOMBRE DE USUARIO</div>
+      </div>
+
+      <div id="funacion-semana" class="uk-flex uk-flex-center uk-flex-middle uk-flex-row">
+
+        {{#each allUsers}}
+
+        <div class="uk-width-auto">
+          {{display_name}}
+        </div>
+
+        {{/each}}
+
+      </div>
+
+    </div>
   </div>
 
-  <div id="funacion" class="uk-flex uk-flex-center uk-flex-middle uk-flex-column">
+  <div class="uk-flex uk-flex-center uk-flex-middle uk-text-center uk-flex-column uk-width-1-1 uk-width-5-6@xl"
+    id="kirzheka">
+    <h1 class="">Holi ψ(._. )> esta es tu lista de funación:</h1>
+
+    <div class="uk-flex uk-margin-small-bottom" id="table-title">
+      <div class="uk-width-1-5">TIPO</div>
+      <div class="uk-width-3-5">NOMBRE DE USUARIO</div>
+      <div class="uk-width-1-5">-</div>
+    </div>
+
+    <div id="funacion" class="uk-flex uk-flex-center uk-flex-middle uk-flex-column">
+
+      {{#each queueUsers}}
+
+      <div
+        class="uk-grid uk-grid-column-collapse uk-width-1-1 uk-flex-middle uk-margin-small-bottom uk-margin-small-top">
+        <div class="uk-width-1-5">
+          {{message}}
+        </div>
+        <div class="uk-width-3-5 uk-text-large">
+          {{display_name}}
+        </div>
+        <div class="uk-width-1-5">
+          <button type="button" class="uk-button uk-button-danger uk-button-small" id="{{id}}"
+            onClick="buttonClick(this.id)">
+            <i class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+      {{/each}}
+
+    </div>
+    {{#each count}}
+    <div id="numero-funacion">
+
+      {{#ifEquals qty 0}}
+      <p>Al parecer no hay personitas en la lista de funación</p>
+      {{else}}
+      <p>Tienes a {{qty}}{{#ifEquals qty 1}} persona {{else}} personas {{/ifEquals}}esperando su funación</p>
+      {{/ifEquals}}
+
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="uk-position-right uk-width-5-6" id="alert-container">
 
   </div>
 </div>
 
-<div class="uk-position-top" id="alert-container">
+<script>
+  function buttonClick(id) {
+    const alertCont = document.querySelector('#alert-container');
+    const thisButton = document.getElementById(`${id}`)
 
-</div>
+    $.ajax({
+      type: "POST",
+      url: "/?q=removeById " + id,
+      data: 'name=t_songbird&displayName=T_Songbird&provider=twitch&providerId=195003953&userLevel=owner',
+      success: function (data) {
+        thisButton.parentElement.parentElement.remove();
+
+        alertCont.innerHTML = `<div class="uk-alert-primary" id="user-alert" uk-alert><a class="uk-alert-close" uk-close></a><p>${data} </p></div>`;
+
+        const alertObj = alertCont.firstChild;
+
+        setTimeout(() => {
+          UIkit.alert(alertObj).close();
+        }, 4000);
+      }
+    });
+  }
+
+  function updateList() {
+    const container = document.querySelector('#funacion');
+    const containerSem = document.querySelector('#funacion-semana');
+    const cantidad = document.querySelector('#numero-funacion');
+
+    $.ajax({
+      type: "POST",
+      url: "/kirzheka",
+      success: function (data) {
+        container.innerHTML = '';
+        containerSem.innerHTML = '';
+
+        if (data.count[0].qty === 0) {
+          cantidad.innerHTML = `<p>Al parecer no hay personitas en la lista de funación</p>`;
+        } else {
+          cantidad.innerHTML = `<p>Tienes a ${data.count[0].qty} ${data.count[0].qty === 1 ? 'persona' : 'personas'} esperando su funación</p>`;
+        }
+
+        data.queueUsers.forEach(user => {
+          container.innerHTML += `
+            <div class="uk-grid uk-grid-column-collapse uk-width-1-1 uk-flex-middle uk-margin-small-bottom uk-margin-small-top">
+              <div class="uk-width-1-5">
+                ${user.message}
+              </div>
+              <div class="uk-width-3-5 uk-text-large">
+                ${user.display_name}
+              </div>
+              <div class="uk-width-1-5">
+                <button type="button" class="uk-button uk-button-danger uk-button-small" id="${user.id}" onClick="buttonClick(this.id)">
+                  <i class="fas fa-check"></i>
+                </button>
+              </div>
+            </div>`;
+        });
+
+        data.allUsers.forEach(user => {
+          containerSem.innerHTML += `
+            <div class="uk-width-auto">
+              ${user.display_name}
+            </div>`;
+        });
+      }
+    });
+  }
+
+  const autoRefresh = setInterval(function () { updateList() }, 1500);
+</script>

@@ -1,7 +1,10 @@
 CREATE TABLE users(
   id INT(10) NOT NULL,
   created_at timestamp NOT NULL DEFAULT current_timestamp,
-  name VARCHAR(150) NOT NULL
+  name VARCHAR(150) NOT NULL,
+  display_name VARCHAR(150) NOT NULL,
+  provider VARCHAR(100) NOT NULL,
+  provider_id VARCHAR(100) NOT NULL
 );
 
 ALTER TABLE users
@@ -15,6 +18,7 @@ CREATE TABLE queue_users(
   created_at timestamp NOT NULL DEFAULT current_timestamp,
   user_id INT(10) NOT NULL,
   message VARCHAR(150) NOT NULL,
+  user_level VARCHAR(20) NOT NULL,
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
+
+body {
+  height: 100vh;
+}
+
+body,
+html {
+  background-color: transparent;
+}
+
+#big {
+  background-image: url(../img/bg.png);
+}
+
+#kirzheka-sem {
+  padding-top: 50px;
+}
+
+#sem {
+  background-color: #00000008;
+}
+
+#funacion,
+#table-title {
+  min-width: 500px;
+  max-width: 600px;
+  width: 100%;
+}
+
+#alert-container {
+  bottom: inherit !important;
+}
+
+#funacion-semana {
+  display: flex;
+  flex-flow: wrap;
+}
+
+#funacion-semana>div {
+  margin: 10px;
+}
+
+#left-table {
+  width: 100%;
+  border-bottom: 2px darkgray solid;
+  border-top: 2px darkgray solid;
+}
+
+#table-title {
+  border-bottom: 2px darkgray solid;
+  border-top: 2px darkgray solid;
+}
+
+.uk-alert-primary {
+  margin: 0px 100px;
+}
+
+#obs-content {
+  color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-family: 'Titan One', cursive;
+  font-size: 23px;
+}
+
+#obs-content>.first-name {
+  font-size: 28px;
+  -webkit-text-stroke-color: rgb(133, 12, 133);
+}

@@ -1,0 +1,39 @@
+<div id="obs-content" class="uk-flex uk-flex-middle uk-height-1-1 uk-text-center uk-flex-column">
+
+</div>
+
+<script>
+  function updateList() {
+    const container = document.querySelector('#obs-content');
+
+    $.ajax({
+      type: "POST",
+      url: "/obs",
+      success: function (data) {
+        container.innerHTML = '';
+        let firstName = false;
+
+        if (data.length === 0) {
+          container.classList.add('uk-flex-center');
+          container.innerHTML = 'No hay nadie en la lista... Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌟'
+        } else {
+          container.classList.remove('uk-flex-center');
+        }
+
+
+        data.forEach(user => {
+          if (firstName === false) {
+            container.innerHTML += `<p class="uk-margin-small first-name">${user.display_name}</p>`;
+            firstName = true;
+          } else {
+            container.innerHTML += `<p class="uk-margin-small">${user.display_name}</p>`;
+          }
+        })
+      },
+    });
+  }
+
+  updateList();
+
+  var auto_refresh = setInterval(function () { updateList() }, 1500);
+</script>

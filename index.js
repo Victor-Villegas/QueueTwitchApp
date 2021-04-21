@@ -7,6 +7,7 @@ const path = require('path');
 const app = express();
 
 // Settings
+// ---------------------------------------
 app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'src/views'));
 app.engine('.hbs', exphbs({
@@ -19,26 +20,26 @@ app.engine('.hbs', exphbs({
 app.set('view engine', '.hbs');
 
 // Middlewares
+// ---------------------------------------
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // Global Variables
-app.use((req, res, next) => {
-  next();
-});
+// ---------------------------------------
 
 // Routes
-// app.use(require('./routes'));
-// app.use(require('./src/routes/authentication'));
-// app.use('/links', require('./src/routes/links'));
+// ---------------------------------------
 app.use(require('./src/routes/command'));
 app.use(require('./src/routes/kirzheka'));
+app.use(require('./src/routes/obs'));
 
 // Public
+// ---------------------------------------
 app.use(express.static(path.join(__dirname, 'src/public')));
 
 // Starting the Server
+// ---------------------------------------
 app.listen(app.get('port'), () => {
   console.log('Server on port', app.get('port'));
 });
