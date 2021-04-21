@@ -7,10 +7,10 @@ const { mode } = require('../../keys');
 let twitchUser;
 
 router.get('/', async (req, res) => {
-  console.log(res.headers);
+  console.log(req.headers);
   // Obtener la información del usuario desde el header de Nightbot
   try {
-    twitchUser = twitch.getTwitchUser(res.headers);
+    twitchUser = twitch.getTwitchUser(req.headers);
   } catch (error) {
     // Si el modo developer esta desactivado se prohibe el acceso desde fuera de twitch
     if (!Number(mode.developer)) {
