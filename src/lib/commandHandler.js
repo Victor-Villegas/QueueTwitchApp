@@ -83,13 +83,15 @@ const commands = {
   info: {
     response: async function () {
       const [users] = await pool.query('SELECT COUNT(user_id) AS UsersWaiting FROM queue_users');
+      const allUsers = await pool.query('SELECT display_name FROM users WHERE id NOT IN (SELECT user_id FROM queue_users)');
 
       if (users.UsersWaiting === 0) {
         return '(*/ω＼*) Parece que no hay nadie anotado para la funación';
       }
 
-      const time = new Date();
-      return `(✿◠‿◠) Hay ${users.UsersWaiting === 1 ? '1 persona' : `${users.UsersWaiting} personas`} esperando su funación, acabando aproximadamente a las: ${moment(time).add(users.UsersWaiting * 7, 'm').format('HH:mm:ss')} hrs`;
+      // const time = new Date();
+      // return `(✿◠‿◠) Hay ${users.UsersWaiting === 1 ? '1 persona' : `${users.UsersWaiting} personas`} esperando su funación, acabando aproximadamente a las: ${moment(time).add(users.UsersWaiting * 7, 'm').format('HH:mm:ss')} hrs`;
+      return `(✿◠‿◠) Hay ${users.UsersWaiting === 1 ? '1 persona' : `${users.UsersWaiting} personas`} esperando su funación, esta semana se han hecho ${allUsers.length} ${allUsers.length === 1 ? 'funación' : 'funaciones'}`;
     }
   },
 
