@@ -38,7 +38,6 @@ app.use(require('./src/routes/obs'));
 // Public
 // ---------------------------------------
 app.use(express.static(path.join(__dirname, 'src/public')));
-// app.use(express.static(path.join(__dirname, 'public')));
 
 // Starting the Server
 // ---------------------------------------
@@ -57,3 +56,12 @@ io.on('connection', socket => {
     io.emit('refresh');
   });
 });
+
+exports.sound = function () {
+  io.emit('sound');
+  io.emit('refresh');
+};
+
+exports.refresh = function () {
+  io.emit('refresh');
+};

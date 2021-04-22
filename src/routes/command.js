@@ -3,6 +3,7 @@ const commands = require('../lib/commandHandler');
 const twitch = require('../lib/twitchCredentials');
 const router = express.Router();
 const { mode } = require('../../keys');
+const alert = require('../../index');
 
 let twitchUser;
 
@@ -49,9 +50,11 @@ router.get('/', async (req, res) => {
 
     if (typeof data === 'object') {
       if (data.sound === true) {
-        return res.render('links/joining', { message: `@${twitchUser.displayName}: ${data.message}` });
+        alert.sound();
+        return res.send(`@${twitchUser.displayName}: ${data.message}`);
       } else {
-        return res.render('links/refreshing', { message: `@${twitchUser.displayName}: ${data.message}` });
+        alert.refresh();
+        return res.send(`@${twitchUser.displayName}: ${data.message}`);
       }
     }
 
