@@ -10,7 +10,13 @@ const commands = {
   clear: {
     response: async function () {
       await pool.query('TRUNCATE TABLE queue_users');
-      return 'Puff, se ha borrado la lista de funación ╰(*°▽°*)╯';
+
+      const data = {
+        sound: false,
+        message: 'Puff, se ha borrado la lista de funación ╰(*°▽°*)╯'
+      };
+
+      return data;
     }
   },
 
@@ -20,7 +26,12 @@ const commands = {
       await pool.query('DELETE FROM queue_users');
       await pool.query('DELETE FROM users');
 
-      return 'Puff, se reinició la lista semanal (∩^o^)⊃━☆';
+      const data = {
+        sound: false,
+        message: 'Puff, se reinició la lista semanal (∩^o^)⊃━☆'
+      };
+
+      return data;
     }
   },
 
@@ -157,7 +168,12 @@ const commands = {
         const userQueue = { user_id: user.id, message, user_level: userLevel };
         await pool.query('INSERT INTO queue_users set ?', [userQueue]);
 
-        return `Has agregado a "${user.displayName}" a la lista de espera, posición: #${await getPosition(user.id)}`;
+        const data = {
+          sound: true,
+          message: `Has agregado a "${user.displayName}" a la lista de espera, posición: #${await getPosition(user.id)}`
+        };
+
+        return data;
 
       // Si el usuario se encuentra en la lista secundaria
       } else {
@@ -196,18 +212,42 @@ const commands = {
       } else {
         await pool.query(`DELETE FROM queue_users WHERE user_id=${user.id}`);
         await pool.query(`DELETE FROM users WHERE name='${user.name}'`);
-        return `(o゜▽゜)o☆ Se removio a "${user.displayName}" de la lista`;
+
+        const data = {
+          sound: false,
+          message: `(o゜▽゜)o☆ Se removio a "${user.displayName}" de la lista`
+        };
+
+        return data;
       }
     }
   },
 
   // Este comando remueve a un usuario remoto por medio del ID
   removeById: {
-    response: async function (userId) {
+    response: async function (userId, method = false) {
+      if (Boolean(method) === true) {
+        const [userData] = await pool.query(`SELECT display_name FROM users WHERE id=${userId}`);
+        await pool.query(`DELETE FROM queue_users WHERE user_id=${userId}`);
+        await pool.query(`DELETE FROM users WHERE id='${userId}'`);
+
+        const data = {
+          sound: false,
+          message: `(o゜▽゜)o☆ Se removio a "${userData.display_name}" de la lista`
+        };
+
+        return data;
+      }
+
       const [userData] = await pool.query(`SELECT display_name FROM users WHERE id=${userId}`);
       await pool.query(`DELETE FROM queue_users WHERE user_id=${userId}`);
-      // await pool.query(`DELETE FROM users WHERE id='${userId}'`);
-      return `(o゜▽゜)o☆ Se removio a "${userData.display_name}" de la lista`;
+
+      const data = {
+        sound: false,
+        message: `¡Listo! Se registro la funación de "${userData.display_name}" ( •̀ ω •́ )✧`
+      };
+
+      return data;
     }
   },
 
@@ -231,7 +271,12 @@ const commands = {
         await pool.query(`DELETE FROM queue_users WHERE user_id=${user.id}`);
         await pool.query(`DELETE FROM users WHERE id='${user.id}'`);
 
-        return 'Te has salido de la lista de espera (T_T)';
+        const data = {
+          sound: false,
+          message: 'Te has salido de la lista de espera (T_T)'
+        };
+
+        return data;
       }
     }
   },
@@ -263,7 +308,12 @@ const commands = {
         const userQueue = { user_id: user.id, message, user_level: user.userLevel };
         await pool.query('INSERT INTO queue_users set ?', [userQueue]);
 
-        return `¡Te uniste a la funación! Tu posición es: #${await getPosition(user.id)}, por favor espera tu turno o(*°▽°*)o`;
+        const data = {
+          sound: true,
+          message: `¡Te uniste a la funación! Tu posición es: #${await getPosition(user.id)}, por favor espera tu turno o(*°▽°*)o`
+        };
+
+        return data;
       }
 
       // - Asignación del id al objeto usuario

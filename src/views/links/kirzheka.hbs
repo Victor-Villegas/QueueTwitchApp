@@ -49,6 +49,10 @@
             onClick="buttonClick(this.id)">
             <i class="fas fa-check"></i>
           </button>
+          <button type="button" class="uk-button uk-button-default uk-button-small" id="0{{id}}"
+            onClick="buttonCancel(this.id)">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
       </div>
 
@@ -73,73 +77,24 @@
   </div>
 </div>
 
+<audio src='./media/pop.mp3'></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.1/howler.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/functionality.js"></script>
 <script>
-  function buttonClick(id) {
-    const alertCont = document.querySelector('#alert-container');
-    const thisButton = document.getElementById(`${id}`)
+  const socket = io();
 
-    $.ajax({
-      type: "POST",
-      url: "/?q=removeById " + id,
-      data: 'name=t_songbird&displayName=T_Songbird&provider=twitch&providerId=195003953&userLevel=owner',
-      success: function (data) {
-        thisButton.parentElement.parentElement.remove();
+  var sound = new Howl({
+    src: ['./media/pop.wav'],
+    volume: 0.5,
+  });
 
-        alertCont.innerHTML = `<div class="uk-alert-primary" id="user-alert" uk-alert><a class="uk-alert-close" uk-close></a><p>${data} </p></div>`;
+  socket.on('sound', function () {
+    sound.play();
+  });
 
-        const alertObj = alertCont.firstChild;
-
-        setTimeout(() => {
-          UIkit.alert(alertObj).close();
-        }, 4000);
-      }
-    });
-  }
-
-  function updateList() {
-    const container = document.querySelector('#funacion');
-    const containerSem = document.querySelector('#funacion-semana');
-    const cantidad = document.querySelector('#numero-funacion');
-
-    $.ajax({
-      type: "POST",
-      url: "/kirzheka",
-      success: function (data) {
-        container.innerHTML = '';
-        containerSem.innerHTML = '';
-
-        if (data.count[0].qty === 0) {
-          cantidad.innerHTML = `<p>Al parecer no hay personitas en la lista de funación</p>`;
-        } else {
-          cantidad.innerHTML = `<p>Tienes a ${data.count[0].qty} ${data.count[0].qty === 1 ? 'persona' : 'personas'} esperando su funación</p>`;
-        }
-
-        data.queueUsers.forEach(user => {
-          container.innerHTML += `
-            <div class="uk-grid uk-grid-column-collapse uk-width-1-1 uk-flex-middle uk-margin-small-bottom uk-margin-small-top">
-              <div class="uk-width-1-5">
-                ${user.message}
-              </div>
-              <div class="uk-width-3-5 uk-text-large">
-                ${user.display_name}
-              </div>
-              <div class="uk-width-1-5">
-                <button type="button" class="uk-button uk-button-danger uk-button-small" id="${user.id}" onClick="buttonClick(this.id)">
-                  <i class="fas fa-check"></i>
-                </button>
-              </div>
-            </div>`;
-        });
-
-        data.allUsers.forEach(user => {
-          containerSem.innerHTML += `
-            <div class="uk-width-auto">
-              ${user.display_name}
-            </div>`;
-        });
-      }
-    });
-  }
-
-  const autoRefresh = setInterval(function () { updateList() }, 1500);
+  socket.on('refresh', function () {
+    updateList();
+  });
 </script>

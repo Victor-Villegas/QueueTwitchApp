@@ -7,7 +7,6 @@ const { mode } = require('../../keys');
 let twitchUser;
 
 router.get('/', async (req, res) => {
-  console.log(req.headers);
   // Obtener la información del usuario desde el header de Nightbot
   try {
     twitchUser = twitch.getTwitchUser(req.headers);
@@ -38,7 +37,7 @@ router.get('/', async (req, res) => {
 
   // Si no se llamo un comando, es decir !q solo, mostrar este mensaje
   if (command === '') {
-    res.send('No tienes el suficiente poder para usar este comando ᕦ(ò_óˇ)ᕤ');
+    return res.send('No tienes el suficiente poder para usar este comando ᕦ(ò_óˇ)ᕤ');
   }
 
   // Obtener funcion del comand deseado, si no existe mostrar un mensaje
@@ -46,17 +45,31 @@ router.get('/', async (req, res) => {
 
   // Mostrar el mensaje del comando deseado, haciendo distinción si es función o solo texto
   if (typeof response === 'function') {
-    res.send(`@${twitchUser.displayName}: ${await response(twitchUser, message, userLevel)}`);
+    const data = await response(twitchUser, message, userLevel);
+
+    if (typeof data === 'object') {
+      if (data.sound === true) {
+        return res.render('links/joining', { message: `@${twitchUser.displayName}: ${data.message}` });
+      } else {
+        return res.render('links/refreshing', { message: `@${twitchUser.displayName}: ${data.message}` });
+      }
+    }
+
+    return res.send(`@${twitchUser.displayName}: ${data}`);
   } else if (typeof response === 'string') {
-    res.send(response);
+    return res.send(response(twitchUser, message, userLevel));
   }
+  // return res.render('links/index', { message: `@${twitchUser.displayName}: ${await response(twitchUser, message, userLevel)}` });
+  // return res.render('links/index', { message: response(twitchUser, message, userLevel) });
 });
 
 router.post('/', async (req, res) => {
   const { q: query } = req.query;
-  const [, userId] = query.split(' ');
+  const [, userId, method] = query.split(' ');
 
-  res.send(`${await commands.removeById.response(userId)}`);
+  const message = await commands.removeById.response(userId, method);
+
+  res.send(`${message.message}`);
 });
 
 module.exports = router;

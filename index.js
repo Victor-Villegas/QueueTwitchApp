@@ -1,14 +1,15 @@
-const express = require('express');
-const morgan = require('morgan');
-const exphbs = require('express-handlebars');
 const path = require('path');
 
-// Initializations
+const morgan = require('morgan');
+const exphbs = require('express-handlebars');
+
+// Initialize
+const express = require('express');
 const app = express();
 
 // Settings
 // ---------------------------------------
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'src/views'));
 app.engine('.hbs', exphbs({
   defaultLayout: 'main',
@@ -37,9 +38,22 @@ app.use(require('./src/routes/obs'));
 // Public
 // ---------------------------------------
 app.use(express.static(path.join(__dirname, 'src/public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Starting the Server
 // ---------------------------------------
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
   console.log('Server on port', app.get('port'));
+});
+const io = require('socket.io')(server);
+
+io.on('connection', socket => {
+  socket.on('joining', () => {
+    io.emit('sound');
+    io.emit('refresh');
+  });
+
+  socket.on('refreshing', () => {
+    io.emit('refresh');
+  });
 });
