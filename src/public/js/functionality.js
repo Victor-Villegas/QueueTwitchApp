@@ -4,7 +4,7 @@ function buttonClick (id) {
 
   $.ajax({
     type: 'POST',
-    url: `/?q=removeById ${id}`,
+    url: `/?q=removeByName ${id}`,
     data: 'name=t_songbird&displayName=T_Songbird&provider=twitch&providerId=195003953&userLevel=owner',
     success: function (data) {
       thisButton.parentElement.parentElement.remove();
@@ -30,7 +30,7 @@ function buttonCancel (id) {
 
   $.ajax({
     type: 'POST',
-    url: `/?q=removeById ${id} ${true}`,
+    url: `/?q=removeByName ${id} ${true}`,
     data: 'name=t_songbird&displayName=T_Songbird&provider=twitch&providerId=195003953&userLevel=owner',
     success: function (data) {
       thisButton.parentElement.parentElement.remove();
@@ -76,10 +76,10 @@ function updateList () {
                 ${user.display_name}
               </div>
               <div class="uk-width-1-5">
-                <button type="button" class="uk-button uk-button-danger uk-button-small" id="${user.id}" onClick="buttonClick(this.id)">
+                <button type="button" class="uk-button uk-button-danger uk-button-small" id="${user.name}" onClick="buttonClick(this.id)">
                   <i class="fas fa-check"></i>
                 </button>
-                <button type="button" class="uk-button uk-button-default uk-button-small" id="0${user.id}"
+                <button type="button" class="uk-button uk-button-default uk-button-small" id="-${user.name}"
                 onClick="buttonCancel(this.id)">
                   <i class="fas fa-times"></i>
                 </button>
@@ -87,7 +87,7 @@ function updateList () {
             </div>`;
       });
 
-      data.allUsers.forEach(user => {
+      data.users.forEach(user => {
         containerSem.innerHTML += `
             <div class="uk-width-auto">
               ${user.display_name}
@@ -96,5 +96,3 @@ function updateList () {
     }
   });
 }
-
-// const autoRefresh = setInterval(function () { updateList(); }, 1500);

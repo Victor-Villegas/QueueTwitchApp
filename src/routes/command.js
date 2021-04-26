@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
   const { q: query } = req.query;
   const [, userId, method] = query.split(' ');
 
-  const message = await commands.removeById.response(userId, method);
+  const message = await commands.removeByName.response(userId, method);
 
   res.send(`${message.message}`);
 });

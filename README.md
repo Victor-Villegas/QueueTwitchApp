@@ -17,6 +17,12 @@ Nightbot Twitch Addon: Queue System fue diseñado para la streamer 'Kirzheka', e
 - Ejecuta npm run dev para entrar a modo desarrollador utilizando nodemon.
 
 ## Changelog
+Version 2.1.0:
+- Añadida la función de lista por semana.
+- Añadida la función de cerrar lista para no aceptar solicitudes.
+- Añadida la función de abrir lista para aceptar solicitudes.
+- Se arreglo un error en el comando !info.
+  
 Version 2.0.1:
 - Solucionado un error con Nightbot donde urlfetch no respondia como se esperaba.
 

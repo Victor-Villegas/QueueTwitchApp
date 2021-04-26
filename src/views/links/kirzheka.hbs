@@ -9,7 +9,7 @@
 
       <div id="funacion-semana" class="uk-flex uk-flex-center uk-flex-middle uk-flex-row">
 
-        {{#each allUsers}}
+        {{#each users}}
 
         <div class="uk-width-auto">
           {{display_name}}
@@ -45,11 +45,11 @@
           {{display_name}}
         </div>
         <div class="uk-width-1-5">
-          <button type="button" class="uk-button uk-button-danger uk-button-small" id="{{id}}"
+          <button type="button" class="uk-button uk-button-danger uk-button-small" id="{{name}}"
             onClick="buttonClick(this.id)">
             <i class="fas fa-check"></i>
           </button>
-          <button type="button" class="uk-button uk-button-default uk-button-small" id="0{{id}}"
+          <button type="button" class="uk-button uk-button-default uk-button-small" id="-{{name}}"
             onClick="buttonCancel(this.id)">
             <i class="fas fa-times"></i>
           </button>

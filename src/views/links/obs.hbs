@@ -2,6 +2,15 @@
 
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('refresh', function () {
+    updateList();
+  });
+</script>
+
 <script>
   function updateList() {
     const container = document.querySelector('#obs-content');
@@ -14,12 +23,8 @@
         let firstName = false;
 
         if (data.length === 0) {
-          container.classList.add('uk-flex-center');
           container.innerHTML = 'No hay nadie en la lista... Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌟'
-        } else {
-          container.classList.remove('uk-flex-center');
         }
-
 
         data.forEach(user => {
           if (firstName === false) {
@@ -34,6 +39,4 @@
   }
 
   updateList();
-
-  var auto_refresh = setInterval(function () { updateList() }, 1500);
 </script>

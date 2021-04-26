@@ -1,8 +1,6 @@
 const pool = require('../../database');
 const moment = require('moment');
 
-let id;
-
 // Esta sección controla como los comandos funcionan, se exportan a command.js y envian una respuesta de regreso
 const commands = {
 
@@ -40,22 +38,14 @@ const commands = {
     response: async function (user, message = '') {
       // - Si el comando es llamado sin argumentos, entonces se refiere a si mismo
       if (message === '') {
-        // - Si el usuario no esta en la lista primaria se le informa
-        if (await checkUser(user.name) === 0) {
-          return '¡No estas en la lista! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙';
-        }
-
-        // - Asignación del id al objeto usuario
-        user.id = id;
-
-        // - Si el usuario no esta en ninguna de las dos listas
-        if (await checkUserQueue(user.id) === 0) {
-          return '¡No estas en la lista! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙';
-
-        // - Si el usuario se encuentra en la lista secundaria
-        } else {
-          const pos = await getPosition(user.id);
+        // - Usuario en lista secundaria
+        if (await checkUserQueue(user.name) !== 0) {
+          const pos = await getPosition(user.name);
           return pos !== 1 ? `¿Esperando tu funación? Estas en el lugar #${pos}` : 'Según mis cálculos, deberían estarte funando en este momento... ¿Alo? ¿Kirzhe?';
+
+          // - Usuario no en lista secundaria
+        } else {
+          return '¡No estas en la lista! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙';
         }
 
       // - Si el comando viene con argumento significa que se busca conocer la posicion de otro usuario
@@ -68,23 +58,17 @@ const commands = {
 
         // - Se elimina el @ del argumento
         message = message.slice(1);
+        user.name = message.toLowerCase();
+        user.displayName = message;
 
-        // - Si el usuario no esta en la lista principal
-        if (await checkUser(message) === 0) {
-          return `Parece que "${message}" no esta en la lista (｡･∀･)ﾉﾞ`;
-        }
-
-        // - Asignación del id al objeto usuario
-        user.id = id;
-
-        // - Si el usuario no esta en ninguna de las dos listas
-        if (await checkUserQueue(user.id) === 0) {
-          return `Parece que "${message}" no esta en la lista (｡･∀･)ﾉﾞ`;
-
-        // - Si el usuario se encuentra en la lista secundaria
-        } else {
-          const pos = await getPosition(user.id);
+        // - Usuario en lista secundaria
+        if (await checkUserQueue(user.name) !== 0) {
+          const pos = await getPosition(user.name);
           return pos !== 1 ? `"${message}" Esta esperando su funa en la posición: #${pos}` : `Deberían estar funando a "${message}" en este momento... ¿Alo? ¿Kirzhe?`;
+
+          // - Usuario no en lista secundaria
+        } else {
+          return `Parece que "${message}" no esta en la lista (｡･∀･)ﾉﾞ`;
         }
       }
     }
@@ -93,91 +77,78 @@ const commands = {
   // Da información sobre la queue
   info: {
     response: async function () {
-      const [users] = await pool.query('SELECT COUNT(user_id) AS UsersWaiting FROM queue_users');
-      const allUsers = await pool.query('SELECT display_name FROM users WHERE id NOT IN (SELECT user_id FROM queue_users)');
-
-      if (users.UsersWaiting === 0) {
-        return '(*/ω＼*) Parece que no hay nadie anotado para la funación';
-      }
+      const [queueUsers] = await pool.query('SELECT COUNT(id) AS UsersWaiting FROM queue_users');
+      const [users] = await pool.query('SELECT COUNT(id) AS UsersWaiting FROM users');
+      const [total] = await pool.query('SELECT stat FROM queue_stats WHERE id=1');
 
       // const time = new Date();
       // return `(✿◠‿◠) Hay ${users.UsersWaiting === 1 ? '1 persona' : `${users.UsersWaiting} personas`} esperando su funación, acabando aproximadamente a las: ${moment(time).add(users.UsersWaiting * 7, 'm').format('HH:mm:ss')} hrs`;
-      return `(✿◠‿◠) Hay ${users.UsersWaiting === 1 ? '1 persona' : `${users.UsersWaiting} personas`} esperando su funación, esta semana se han hecho ${allUsers.length} ${allUsers.length === 1 ? 'funación' : 'funaciones'}`;
+      return `(✿◠‿◠) Hay ${queueUsers.UsersWaiting === 1 ? '1 persona' : `${queueUsers.UsersWaiting} personas`} esperando. Esta semana ${users.UsersWaiting === 1 ? `ha participado ${users.UsersWaiting} persona` : `han participado ${users.UsersWaiting} personas`}. ¡En total llevamos ${total.stat} funaciones!`;
     }
   },
 
   // Agrega a un usuario remoto a la lista de espera.
   add: {
     response: async function (user, message = '', userLevel = '-') {
+      const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
+      if (queueStat.stat === 1) {
       // - Se valida el llamado del argumento con @
-      const regex = /@/;
-      if (!message.match(regex)) {
-        return 'Ingresa el usuario a añadir utilizando @nombre';
-      }
-
-      // - Se elimina el @ del argumento
-      message = message.slice(1);
-      user.name = message.toLowerCase();
-      user.displayName = message;
-
-      // Si el usuario no se encuentra en la lista principal
-      if (await checkUser(user.name) === 0) {
-        const addUser = {
-          name: user.name,
-          display_name: user.displayName,
-          provider: user.provider,
-          provider_id: String(Math.floor((Math.random() * 899999999) + 100000000))
-        };
-
-        const { insertId } = await pool.query('INSERT INTO users set ?', [addUser]);
-
-        // - Asignación del id al objeto usuario
-        user.id = insertId;
-
-      // Si el usuario se encuentra en la lsita principal
-      } else {
-        // - Asignación del id al objeto usuario
-        user.id = id;
-      }
-
-      // Función extra jeje
-      if (message === 'Kirzheka') {
-        message = 'ヾ(⌐■_■)ノ♪ Eres tu';
-      } else {
-        // Cambia el mensaje acorde al argumento
-        switch (userLevel) {
-          case 'p':
-            message = 'Puntos';
-            break;
-          case 'b':
-            message = 'Bits';
-            break;
-          case 'd':
-            message = 'Donación';
-            break;
-          case 's':
-            message = 'Sorteo';
-            break;
-          default:
-            message = 'Otro';
+        const regex = /@/;
+        if (!message.match(regex)) {
+          return 'Ingresa el usuario a añadir utilizando @nombre';
         }
-      }
 
-      // Si el usuario no se encuentra en ninguna lista
-      if (await checkUserQueue(user.id) === 0) {
-        const userQueue = { user_id: user.id, message, user_level: userLevel };
-        await pool.query('INSERT INTO queue_users set ?', [userQueue]);
+        // - Se elimina el @ del argumento
+        message = message.slice(1);
+        user.name = message.toLowerCase();
+        user.displayName = message;
 
-        const data = {
-          sound: true,
-          message: `Has agregado a "${user.displayName}" a la lista de espera, posición: #${await getPosition(user.id)}`
-        };
+        // - Usuario en lista secundaria
+        if (await checkUserQueue(user.name) !== 0) {
+          return `"${user.displayName}" ya se encuentra en la lista, posición: #${await getPosition(user.name)}`;
 
-        return data;
+        // - Usuario no en lista secundaria
+        } else {
+          if (message === 'Kirzheka') {
+            message = 'ヾ(⌐■_■)ノ♪ Eres tu';
+          } else {
+            switch (userLevel) {
+              case 'p':
+                message = 'Puntos';
+                break;
+              case 'b':
+                message = 'Bits';
+                break;
+              case 'd':
+                message = 'Donación';
+                break;
+              case 's':
+                message = 'Sorteo';
+                break;
+              default:
+                message = 'Otro';
+            }
+          }
 
-      // Si el usuario se encuentra en la lista secundaria
+          const addUser = {
+            name: user.name,
+            display_name: user.displayName,
+            provider: user.provider,
+            provider_id: String(Math.floor((Math.random() * 899999999) + 100000000)),
+            message: message
+          };
+
+          await pool.query('INSERT INTO queue_users set ?', [addUser]);
+
+          const data = {
+            sound: true,
+            message: `Has agregado a "${user.displayName}" a la lista de espera, posición: #${await getPosition(user.name)}`
+          };
+
+          return data;
+        }
       } else {
-        return `"${user.displayName}" ya se encuentra en la lista, posición: #${await getPosition(user.id)}`;
+        return 'No estamos aceptando solicitudes en este momento, regresa después (｡･∀･)ﾉﾞ';
       }
     }
   },
@@ -196,22 +167,9 @@ const commands = {
       user.name = message.toLowerCase();
       user.displayName = message;
 
-      // - Si el usuario no se encuentra en la lista principal
-      if (await checkUser(user.name) === 0) {
-        return `Parece que "${user.displayName}" no esta en la lista (｡･∀･)ﾉﾞ`;
-      }
-
-      // - Asignación del id al objeto usuario
-      user.id = id;
-
-      // - Si el usuario no se encuentra en la lista secundaria
-      if (await checkUserQueue(user.id) === 0) {
-        return `Parece que "${user.displayName}" no esta en la lista (｡･∀･)ﾉﾞ`;
-
-      // - Si el usuario se encuentra en la lista secundaria
-      } else {
-        await pool.query(`DELETE FROM queue_users WHERE user_id=${user.id}`);
-        await pool.query(`DELETE FROM users WHERE name='${user.name}'`);
+      // - Usuario en lista secundaria
+      if (await checkUserQueue(user.name) !== 0) {
+        await pool.query(`DELETE FROM queue_users WHERE name='${user.name}'`);
 
         const data = {
           sound: false,
@@ -219,17 +177,21 @@ const commands = {
         };
 
         return data;
+
+        // - Usuario no en lista secundaria
+      } else {
+        return `Parece que "${user.displayName}" no esta en la lista (｡･∀･)ﾉﾞ`;
       }
     }
   },
 
   // Este comando remueve a un usuario remoto por medio del ID
-  removeById: {
-    response: async function (userId, method = false) {
+  removeByName: {
+    response: async function (userName, method = false) {
+      // - Removing queue request
       if (Boolean(method) === true) {
-        const [userData] = await pool.query(`SELECT display_name FROM users WHERE id=${userId}`);
-        await pool.query(`DELETE FROM queue_users WHERE user_id=${userId}`);
-        await pool.query(`DELETE FROM users WHERE id='${userId}'`);
+        const [userData] = await pool.query(`SELECT display_name FROM queue_users WHERE name='${userName}'`);
+        await pool.query(`DELETE FROM queue_users WHERE name='${userName}'`);
 
         const data = {
           sound: false,
@@ -239,8 +201,25 @@ const commands = {
         return data;
       }
 
-      const [userData] = await pool.query(`SELECT display_name FROM users WHERE id=${userId}`);
-      await pool.query(`DELETE FROM queue_users WHERE user_id=${userId}`);
+      // - Acepting queue request
+      const [userData] = await pool.query(`SELECT created_at, name, display_name, provider, provider_id FROM queue_users WHERE name='${userName}'`);
+      await pool.query(`DELETE FROM queue_users WHERE name='${userName}'`);
+
+      const userExist = await pool.query(`SELECT id FROM users WHERE name='${userName}'`);
+      if (userExist.length === 0) {
+        await pool.query('INSERT INTO users set ?', [userData]);
+      }
+
+      const userStat = await pool.query(`SELECT id FROM user_stats WHERE name='${userName}'`);
+      if (userStat.length !== 0) {
+        await pool.query(`UPDATE user_stats SET readings=readings+1 WHERE name='${userName}'`);
+      } else {
+        userData.readings = 1;
+        delete userData.created_at;
+        await pool.query('INSERT INTO user_stats set ?', [userData]);
+      }
+
+      await pool.query('UPDATE queue_stats SET stat=stat+1 WHERE id=1');
 
       const data = {
         sound: false,
@@ -254,22 +233,9 @@ const commands = {
   // Remueve al suscriptor de la lista
   leave: {
     response: async function (user) {
-      // Si el usuario no se encuentra en la lista principal
-      if (await checkUser(user.name) === 0) {
-        return 'Al parecer no te encontrabas en la lista de todos modos (｡･∀･)ﾉﾞ';
-      }
-
-      // - Asignación del id al objeto usuario
-      user.id = id;
-
-      // Si el usuario no se encuentra en la lista secundaria
-      if (await checkUserQueue(user.id) === 0) {
-        return 'Al parecer no te encontrabas en la lista de todos modos (｡･∀･)ﾉﾞ';
-
-      // Si el usuario se encuentra en la lista secundaria
-      } else {
-        await pool.query(`DELETE FROM queue_users WHERE user_id=${user.id}`);
-        await pool.query(`DELETE FROM users WHERE id='${user.id}'`);
+      // - Usuario en lista secundaria
+      if (await checkUserQueue(user.name) !== 0) {
+        await pool.query(`DELETE FROM queue_users WHERE name='${user.name}'`);
 
         const data = {
           sound: false,
@@ -277,6 +243,10 @@ const commands = {
         };
 
         return data;
+
+        // - Usuario no en lista secundaria
+      } else {
+        return 'Al parecer no te encontrabas en la lista de todos modos (｡･∀･)ﾉﾞ';
       }
     }
   },
@@ -284,76 +254,95 @@ const commands = {
   // Agregarse a si mismo a la lista como suscriptor
   join: {
     response: async function (user, message) {
-      // - Si el usuario no se encuentra en la lista principal
-      if (await checkUser(user.name) === 0) {
-        const addUser = {
-          name: user.name,
-          display_name: user.displayName,
-          provider: user.provider,
-          provider_id: user.providerId
-        };
+      const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
+      if (queueStat.stat === 1) {
+      // - Usuario en lista principal
+        if (await checkUser(user.name) !== 0) {
+          return '( ´･･)ﾉ(._.`) Ya usaste tu canje de suscripción esta semana';
 
-        const { insertId } = await pool.query('INSERT INTO users set ?', [addUser]);
-
-        // - Asignación del id al objeto usuario
-        user.id = insertId;
-
-        // Función extra jeje
-        if (user.display_name === 'Kirzheka') {
-          message = 'ヾ(⌐■_■)ノ♪ Eres tu';
+          // - Usuario no en lista principal
         } else {
-          message = 'Suscriptor';
+        // - Usuario en lista secundaria
+          if (await checkUserQueue(user.name) !== 0) {
+            return `Ya estas en la lista ผ(•̀_•́ผ), tu posición es: #${await getPosition(user.name)}`;
+
+            // - Usuario no en lista secundaria
+          } else {
+            if (user.display_name === 'Kirzheka') {
+              message = 'ヾ(⌐■_■)ノ♪ Eres tu';
+            } else {
+              message = 'Suscriptor';
+            }
+
+            const addUser = {
+              name: user.name,
+              display_name: user.displayName,
+              provider: user.provider,
+              provider_id: user.providerId,
+              message: message
+            };
+
+            await pool.query('INSERT INTO queue_users set ?', [addUser]);
+
+            const data = {
+              sound: true,
+              message: `¡Te uniste a la funación! Tu posición es: #${await getPosition(user.name)}, por favor espera tu turno o(*°▽°*)o`
+            };
+
+            return data;
+          }
         }
-
-        const userQueue = { user_id: user.id, message, user_level: user.userLevel };
-        await pool.query('INSERT INTO queue_users set ?', [userQueue]);
-
-        const data = {
-          sound: true,
-          message: `¡Te uniste a la funación! Tu posición es: #${await getPosition(user.id)}, por favor espera tu turno o(*°▽°*)o`
-        };
-
-        return data;
-      }
-
-      // - Asignación del id al objeto usuario
-      user.id = id;
-
-      // - Si el usuario no se encuentra en la lista secundaria
-      if (await checkUserQueue(user.id) === 0) {
-        return '( ´･･)ﾉ(._.`) Ya usaste tu canje de suscripción esta semana';
-
-      // - Si el usuario se encuentra en la lista secundaria
       } else {
-        return `Ya estas en la lista ผ(•̀_•́ผ), tu posición es: #${await getPosition(user.id)}`;
+        return 'No estamos aceptando solicitudes en este momento, regresa después (｡･∀･)ﾉﾞ';
       }
+    }
+  },
+
+  open: {
+    response: async function () {
+      const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
+
+      if (queueStat.stat === 1) {
+        return 'La lista ya se encuentra abierta ψ(._. )>';
+      }
+
+      await pool.query('UPDATE queue_stats SET stat=1 WHERE id=2');
+
+      return '¡La funación ha comenzado oficialmente! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙';
+    }
+  },
+
+  close: {
+    response: async function () {
+      const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
+
+      if (queueStat.stat === 0) {
+        return 'La lista ya se encuentra cerrada ψ(._. )>';
+      }
+
+      await pool.query('UPDATE queue_stats SET stat=0 WHERE id=2');
+
+      return '¡La funación ha finalizado! Gracias a todos por participar (｡･∀･)ﾉﾞ';
     }
   }
 };
 
 async function checkUser (name) {
-  // Obtener el ID del usuario en la lista primaria
   const userID = await pool.query(`SELECT id FROM users WHERE name='${name}'`);
 
-  // Si se encontro un ID, asignarlo a una variable ID general
-  if (userID.length) { id = userID[0].id; }
-
-  // Regresar true o false dependiendo del resultado de la busqueda
   return userID.length;
 }
 
-async function checkUserQueue (id) {
-  // Onbtener el ID del usuario en la lista secundaria
-  const queueID = await pool.query(`SELECT user_id FROM queue_users WHERE user_id=${id}`);
+async function checkUserQueue (name) {
+  const userID = await pool.query(`SELECT id FROM queue_users WHERE name='${name}'`);
 
-  // Regresar true o false dependiendo del resultado de la busqueda
-  return queueID.length;
+  return userID.length;
 }
 
-async function getPosition (id) {
-  const [date] = await pool.query(`SELECT created_at FROM queue_users WHERE user_id=${id}`);
+async function getPosition (name) {
+  const [date] = await pool.query(`SELECT created_at FROM queue_users WHERE name='${name}'`);
   const timeStamp = moment(date.created_at).format('YYYY-MM-DD HH:mm:ss');
-  const data = await pool.query(`SELECT user_id FROM queue_users WHERE created_at<"${timeStamp}" ORDER BY created_at ASC`);
+  const data = await pool.query(`SELECT id FROM queue_users WHERE created_at<"${timeStamp}" ORDER BY created_at ASC`);
 
   return data.length + 1;
 }
