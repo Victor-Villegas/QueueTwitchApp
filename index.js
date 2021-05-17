@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const exphbs = require('express-handlebars');
 
 // Initialize
+// ---------------------------------------
 const express = require('express');
 const app = express();
 

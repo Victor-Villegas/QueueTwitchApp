@@ -11,7 +11,7 @@ const commands = {
 
       const data = {
         sound: false,
-        message: 'Puff, se ha borrado la lista de funación ╰(*°▽°*)╯'
+        message: 'Puff, se ha borrado la lista de funación ╰(*°▽°*)╯'
       };
 
       return data;
@@ -41,14 +41,14 @@ const commands = {
         // - Usuario en lista secundaria
         if (await checkUserQueue(user.name) !== 0) {
           const pos = await getPosition(user.name);
-          return pos !== 1 ? `¿Esperando tu funación? Estas en el lugar #${pos}` : 'Según mis cálculos, deberían estarte funando en este momento... ¿Alo? ¿Kirzhe?';
+          return pos !== 1 ? `¿Esperando tu funación? Estas en el lugar #${pos}` : 'Según mis cálculos, deberían estarte funando en este momento... ¿Alo? ¿Kirzhe?';
 
           // - Usuario no en lista secundaria
         } else {
           return '¡No estas en la lista! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙';
         }
 
-      // - Si el comando viene con argumento significa que se busca conocer la posicion de otro usuario
+        // - Si el comando viene con argumento significa que se busca conocer la posición de otro usuario
       } else {
         // - Se valida el llamado del argumento con @
         const regex = /@/;
@@ -92,7 +92,7 @@ const commands = {
     response: async function (user, message = '', userLevel = '-') {
       const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
       if (queueStat.stat === 1) {
-      // - Se valida el llamado del argumento con @
+        // - Se valida el llamado del argumento con @
         const regex = /@/;
         if (!message.match(regex)) {
           return 'Ingresa el usuario a añadir utilizando @nombre';
@@ -107,7 +107,7 @@ const commands = {
         if (await checkUserQueue(user.name) !== 0) {
           return `"${user.displayName}" ya se encuentra en la lista, posición: #${await getPosition(user.name)}`;
 
-        // - Usuario no en lista secundaria
+          // - Usuario no en lista secundaria
         } else {
           if (message === 'Kirzheka') {
             message = 'ヾ(⌐■_■)ノ♪ Eres tu';
@@ -173,7 +173,7 @@ const commands = {
 
         const data = {
           sound: false,
-          message: `(o゜▽゜)o☆ Se removio a "${user.displayName}" de la lista`
+          message: `(o゜▽゜)o☆ Se removió a "${user.displayName}" de la lista`
         };
 
         return data;
@@ -195,7 +195,7 @@ const commands = {
 
         const data = {
           sound: false,
-          message: `(o゜▽゜)o☆ Se removio a "${userData.display_name}" de la lista`
+          message: `(o゜▽゜)o☆ Se removió a "${userData.display_name}" de la lista`
         };
 
         return data;
@@ -256,13 +256,13 @@ const commands = {
     response: async function (user, message) {
       const [queueStat] = await pool.query('SELECT stat FROM queue_stats WHERE id=2');
       if (queueStat.stat === 1) {
-      // - Usuario en lista principal
+        // - Usuario en lista principal
         if (await checkUser(user.name) !== 0) {
           return '( ´･･)ﾉ(._.`) Ya usaste tu canje de suscripción esta semana';
 
           // - Usuario no en lista principal
         } else {
-        // - Usuario en lista secundaria
+          // - Usuario en lista secundaria
           if (await checkUserQueue(user.name) !== 0) {
             return `Ya estas en la lista ผ(•̀_•́ผ), tu posición es: #${await getPosition(user.name)}`;
 

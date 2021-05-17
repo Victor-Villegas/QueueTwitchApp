@@ -4,7 +4,7 @@ function getTwitchUser ({ 'nightbot-user': user }) {
   return { name, displayName, provider, providerId, userLevel };
 }
 
-function getTwitchChannel ({ 'asdasnightbot-channel': channel }) {
+function getTwitchChannel ({ 'nightbot-channel': channel }) {
   const regex = /.(?<=&|^.).*?(?==)./;
   const [, name, displayName, provider, providerId] = channel.split(regex);
   return { name, displayName, provider, providerId };
