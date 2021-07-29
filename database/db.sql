@@ -46,7 +46,7 @@ ALTER TABLE user_stats
 
 CREATE TABLE queue_stats(
   id INT(10) NOT NULL,
-  total_readings INT(10) NOT NULL
+  stat INT(10) NOT NULL
 );
 
 ALTER TABLE queue_stats
@@ -54,3 +54,6 @@ ALTER TABLE queue_stats
 
 ALTER TABLE queue_stats
   MODIFY id INT(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT = 1;  
+
+INSERT INTO queue_stats (stat) VALUES(0);
+INSERT INTO queue_stats (stat) VALUES(0);
