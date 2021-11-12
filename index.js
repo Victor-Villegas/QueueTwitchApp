@@ -35,6 +35,7 @@ app.use(express.json());
 app.use(require('./src/routes/command'));
 app.use(require('./src/routes/kirzheka'));
 app.use(require('./src/routes/obs'));
+app.use(require('./src/routes/caracola'));
 
 // Public
 // ---------------------------------------
