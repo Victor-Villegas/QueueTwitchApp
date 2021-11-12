@@ -211,3 +211,5 @@ router.get('/caracola', async (req, res) => {
 
     res.send(runBot(inputUsuario));
 });
+
+module.exports = router;
