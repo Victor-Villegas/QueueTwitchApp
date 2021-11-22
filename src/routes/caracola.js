@@ -9,7 +9,8 @@ router.get('/caracola', async (req, res) => {
         return res.send('No hay nada que ver aquí (￣o￣) . z Z');
     }
 
-    const [command, message] = query.split(' ');
+    let [command, ...message] = query.split(' ');
+    message = message.join(" ");
 
     if (command !== 'ask') {
         return res.send('No tienes el suficiente poder para usar este comando ᕦ(ò_óˇ)ᕤ');
@@ -209,7 +210,8 @@ router.get('/caracola', async (req, res) => {
         return respError[Math.floor(Math.random() * respError.length - 1)];
     }
 
-    res.send(runBot(inputUsuario));
+    const respuesta = runBot(inputUsuario);
+    res.send(respuesta);
 });
 
 module.exports = router;
