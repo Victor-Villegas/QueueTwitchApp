@@ -30,6 +30,7 @@ router.get('/caracola', async (req, res) => {
         "Humm... creo que si... kirzheCerdito",
         "Eso espero, aun que deberás tener cuidado... kirzheAyno",
         "Tengo un buen presentimiento kirzheHappy",
+        "NO ¡NOOOO! kirzheCry",
     ];
 
     const respSiNoOtro = [
@@ -44,8 +45,9 @@ router.get('/caracola', async (req, res) => {
         "En un par de años kirzheCerdito",
         "Asi es, se lo ha ganado kirzheHappy",
         "Humm... creo que si... kirzheCerdito",
-        "Eso espero, aun que deberías tener cuidado... kirzheAyno",
+        "Eso espero, aun que esa persona deberá tener cuidado... kirzheAyno",
         "Tengo un buen presentimiento kirzheHappy",
+        "NO ¡NOOOO! kirzheCry",
     ];
     
     const respCuanto = [
@@ -151,7 +153,7 @@ router.get('/caracola', async (req, res) => {
         }
     
         // Si-No
-        if (inputUsuario[0] === "@" || inputUsuario.match(/^(me va|me veo|estoy|crees|piensas|(podrias|podrías)|di(ria|ría)s|(podrias|podrías) decirme si|(como|cómo) me ir(a|á)|.*?r(e|é)|.*?(ria|ría)|es la|es el|.*?remos|el|la) /gi)) {
+        if (inputUsuario.match(/@/gi) || inputUsuario.match(/^(me va|me veo|estoy|crees|piensas|(podrias|podrías)|di(ria|ría)s|(podrias|podrías) decirme si|(como|cómo) me ir(a|á)|.*?r(e|é)|.*?(ria|ría)|es la|es el|.*?remos|el|la|ella me|el me|me ir(a|á))|a mi|lo|ella me ama|el me ama|me ama /gi)) {
             if (inputUsuario[0] === "@") return respSiNoOtro[Math.floor(Math.random() * respSiNoOtro.length - 1)];
             return respSiNo[Math.floor(Math.random() * respSiNo.length - 1)];
         }
