@@ -152,12 +152,6 @@ router.get('/caracola', async (req, res) => {
             return respGlobal[Math.floor(Math.random() * respGlobal.length - 1)];
         }
     
-        // Si-No
-        if (inputUsuario.match(/@/gi) || inputUsuario.match(/^(me va|me veo|estoy|crees|piensas|(podrias|podrías)|di(ria|ría)s|(podrias|podrías) decirme si|(como|cómo) me ir(a|á)|.*?r(e|é)|.*?(ria|ría)|es la|es el|.*?remos|el|la|ella me|el me|me ir(a|á))|a mi|lo|ella me ama|el me ama|me ama /gi)) {
-            if (inputUsuario[0] === "@") return respSiNoOtro[Math.floor(Math.random() * respSiNoOtro.length - 1)];
-            return respSiNo[Math.floor(Math.random() * respSiNo.length - 1)];
-        }
-    
         // Pregunta con unidad
         if (inputUsuario.match(/^((cuantos|cuántos)|con (cuantos|cuántos)|(cuantas|cuántas)|con (cuantas|cuántas)) /gi)) {
             const unidad = inputUsuario.split(' ')[1].match(/^(cuantos|cuántos|cuantas|cuántas)/gi) ? inputUsuario.split(' ')[2] : inputUsuario.split(' ')[1];
@@ -208,6 +202,12 @@ router.get('/caracola', async (req, res) => {
         // Como
         if (inputUsuario.match(/^((como|cómo) me .*?(a|á)|(como|cómo) .*?r(e|é)|(como|cómo) .*?(a|á)|(como|cómo) se encuentra|(como|cómo) se encontrar(a|á)) /gi)) {
             return respComo[Math.floor(Math.random() * respComo.length - 1)];
+        }
+
+        // Si-No
+        if (inputUsuario.match(/@/gi) || inputUsuario.match(/^(me va|me veo|estoy|crees|piensas|(podrias|podrías)|di(ria|ría)s|(podrias|podrías) decirme si|(como|cómo) me ir(a|á)|.*?r(e|é)|.*?(ria|ría)|es la|es el|.*?remos|el|la|ella me|el me|me ir(a|á)|nos)|a mi|lo|ella me ama|el me ama|me ama /gi)) {
+            if (inputUsuario.match(/@/gi)) return respSiNoOtro[Math.floor(Math.random() * respSiNoOtro.length - 1)];
+            return respSiNo[Math.floor(Math.random() * respSiNo.length - 1)];
         }
         return respError[Math.floor(Math.random() * respError.length - 1)];
     }
