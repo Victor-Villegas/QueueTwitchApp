@@ -34,6 +34,10 @@ router.get('/', async (req, res) => {
 
   const [command, message, userLevel] = query.split(' ');
 
+  if (userLevel !== "subscriber" || userLevel !== "owner" || userLevel !== "moderator") {
+    return res.send('Lo siento, debes estar subscrito para poder usar este comando (´･ω･`)?');
+  }
+
   if (command === '') {
     return res.send('No tienes el suficiente poder para usar este comando ᕦ(ò_óˇ)ᕤ');
   }
