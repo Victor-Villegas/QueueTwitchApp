@@ -34,7 +34,8 @@ router.get('/', async (req, res) => {
 
   const [command, message, userLevel] = query.split(' ');
 
-  if (userLevel !== "subscriber" && userLevel !== "owner" && userLevel !== "moderator") {
+  console.log(userLevel);
+  if (twitchUser.userLevel !== "subscriber" && twitchUser.userLevel !== "owner" && twitchUser.userLevel !== "moderator") {
     return res.send('Lo siento, debes estar subscrito para poder usar este comando (´･ω･`)?');
   }
 
