@@ -10,17 +10,7 @@ function parse(queryString) {
   const params = new URLSearchParams(queryString);
   const object = {};
 
-  for (const [key, value] of params) {
-    if (object[key]) {
-      if (Array.isArray(object[key])) {
-        object[key].push(value);
-      } else {
-        object[key] = [object[key], value];
-      }
-    } else {
-      object[key] = value;
-    }
-  }
+  params.forEach((value, key) => object[key] = value)
 
   return object;
 }
