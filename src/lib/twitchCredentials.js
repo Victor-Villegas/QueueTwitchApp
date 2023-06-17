@@ -1,8 +1,10 @@
 function getTwitchUser ({ 'nightbot-user': user }) {
+  console.log(user)
   return parse(user)
 }
 
 function getTwitchChannel ({ 'nightbot-channel': channel }) {
+  console.log(channel)
   return parse(channel)
 }
 
