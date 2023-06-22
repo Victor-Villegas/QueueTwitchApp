@@ -1,13 +1,20 @@
 function getTwitchUser ({ 'nightbot-user': user }) {
-  const regex = /.(?<=&|^.).*?(?==)./;
-  const [, name, displayName, provider, providerId, userLevel] = user.split(regex);
-  return { name, displayName, provider, providerId, userLevel };
+  console.log(user)
+  return parse(user)
 }
 
 function getTwitchChannel ({ 'nightbot-channel': channel }) {
-  const regex = /.(?<=&|^.).*?(?==)./;
-  const [, name, displayName, provider, providerId] = channel.split(regex);
-  return { name, displayName, provider, providerId };
+  console.log(channel)
+  return parse(channel)
+}
+
+function parse(queryString) {
+  const params = new URLSearchParams(queryString);
+  const object = {};
+
+  params.forEach((value, key) => object[key] = value)
+
+  return object;
 }
 
 module.exports = { getTwitchUser, getTwitchChannel };

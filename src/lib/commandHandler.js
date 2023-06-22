@@ -10,7 +10,7 @@ const commands = {
 
       const data = {
         sound: false,
-        message: "Puff, se ha borrado la lista de funación ╰(*°▽°*)╯",
+        message: "Puff, se ha borrado la lista de lecturas ╰(*°▽°*)╯",
       };
 
       return data;
@@ -41,12 +41,12 @@ const commands = {
         if ((await checkUserQueue(user.name)) !== 0) {
           const pos = await getPosition(user.name);
           return pos !== 1
-            ? `¿Esperando tu funación? Estas en el lugar #${pos}`
-            : "Según mis cálculos, deberían estarte funando en este momento... ¿Alo? ¿Kirzhe?";
+            ? `¿Esperando tu lectura? Estas en el lugar #${pos}`
+            : "Según mis cálculos, deberían estarte leyendo en este momento... ¿Alo? ¿Kirzhe?";
 
           // - Usuario no en lista secundaria
         } else {
-          return "¡No estas en la lista! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙";
+          return "¡No estas en la lista! Escribe !leeme (solo suscriptores) o !lectura para ver como unirte 🌙";
         }
 
         // - Si el comando viene con argumento significa que se busca conocer la posición de otro usuario
@@ -66,8 +66,8 @@ const commands = {
         if ((await checkUserQueue(user.name)) !== 0) {
           const pos = await getPosition(user.name);
           return pos !== 1
-            ? `"${message}" Esta esperando su funa en la posición: #${pos}`
-            : `Deberían estar funando a "${message}" en este momento... ¿Alo? ¿Kirzhe?`;
+            ? `"${message}" Esta esperando su lectura en la posición: #${pos}`
+            : `Deberían estar leyéndole a "${message}" en este momento... ¿Alo? ¿Kirzhe?`;
 
           // - Usuario no en lista secundaria
         } else {
@@ -100,7 +100,7 @@ const commands = {
         users.UsersWaiting === 1
           ? `ha participado ${users.UsersWaiting} persona`
           : `han participado ${users.UsersWaiting} personas`
-      }. ¡En total llevamos ${total.stat} funaciones!`;
+      }. ¡En total llevamos ${total.stat} lecturas!`;
     },
   },
 
@@ -345,7 +345,7 @@ const commands = {
 
             const data = {
               sound: true,
-              message: `¡Te uniste a la funación! Tu posición es: #${await getPosition(
+              message: `¡Te uniste a la lectura! Tu posición es: #${await getPosition(
                 user.name
               )}, por favor espera tu turno o(*°▽°*)o`,
             };
@@ -371,7 +371,7 @@ const commands = {
 
       await pool.query("UPDATE queue_stats SET stat=1 WHERE id=2");
 
-      return "¡La funación ha comenzado oficialmente! Escribe !funame (solo suscriptores) o !lectura para ver como unirte 🌙";
+      return "¡Las lecturas han comenzado oficialmente! Escribe !leeme (solo suscriptores) o !lectura para ver como unirte 🌙";
     },
   },
 
@@ -387,7 +387,7 @@ const commands = {
 
       await pool.query("UPDATE queue_stats SET stat=0 WHERE id=2");
 
-      return "¡La funación ha finalizado! Gracias a todos por participar (｡･∀･)ﾉﾞ";
+      return "¡Las lecturas han finalizado! Gracias a todos por participar (｡･∀･)ﾉﾞ";
     },
   },
 };
